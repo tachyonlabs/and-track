@@ -2,10 +2,19 @@
 
 ## About the app/project
 
-First, at Google I/O 2018 they were giving away 
+1. At Google I/O 2018 they were giving away 
 [Android Things Starter Kits](https://androidthings.withgoogle.com/#!/kits/starter-kit) as part of a scavenger hunt.
 
-Second, again at Google I/O 2018, at all the Android sessions it was just Kotlin Kotlin Kotlin on all the coding
-screenshots and live demos -- I seriously saw more Python code onscreen than I did Java.
+2. Again at Google I/O 2018, at all the Android sessions it was just Kotlin Kotlin Kotlin on all the coding
+screenshots and live demos -- I seriously saw more Python code projected on the screens than I did Java.
 
-... more later ... this is just the first commit, to create the repo ...
+3. 
+
+... more later ... I'm just getting started here ...
+
+## Notes
+
+Thanks to [https://github.com/androidthings/contrib-drivers/tree/master/rainbowhat](https://github.com/androidthings/contrib-drivers/tree/master/rainbowhat) 
+for Rainbow HAT programming examples.
+
+Apologies for messy Kotlin code ... will clean up later ...
