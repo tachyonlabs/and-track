@@ -4,20 +4,18 @@ import android.app.Activity
 import android.graphics.Color
 import android.os.Bundle
 import android.os.CountDownTimer
-import android.util.Log
 import com.google.android.things.contrib.driver.ht16k33.Ht16k33
 import com.google.android.things.contrib.driver.rainbowhat.RainbowHat
-
+import com.google.android.things.pio.Gpio
+import com.google.android.things.pio.PeripheralManager
 
 private val TAG = MainActivity::class.java.simpleName
 
 class MainActivity : Activity() {
     var segmentDisplayOn = false
-    var motorOn = false
     val rainbowLeds = RainbowHat.openLedStrip()
     var rainbow = IntArray(7)
     val RAINBOW_OFF = intArrayOf(0, 0, 0, 0, 0, 0, 0)
-    val RAINBOW_BRIGHTNESS = 32
     val segmentDisplay = RainbowHat.openDisplay()
     var redLed = RainbowHat.openLedRed()
     var greenLed = RainbowHat.openLedGreen()
@@ -25,23 +23,30 @@ class MainActivity : Activity() {
     val marqueeText = "GWG AND TRACK "
     var fourChars = ""
     var marqueePosition = 0
-    val scrollTimer = object : CountDownTimer(86400000, 500) {
-
-        override fun onTick(millisUntilFinished: Long) {
-            fourChars = fourChars.substring(1) + marqueeText[marqueePosition]
-            segmentDisplay.display(fourChars)
-            rainbowLeds.write(rainbow)
-            rainbow = rainbow.copyOfRange(6, 7) + rainbow.copyOfRange(0, 6)
-            marqueePosition = (marqueePosition + 1) % marqueeText.length
-        }
-
-        override fun onFinish() {
-        }
-    }
+    lateinit var j2Gpio: Gpio
+    lateinit var scrollTimer: CountDownTimer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         segmentDisplay.setBrightness(Ht16k33.HT16K33_BRIGHTNESS_MAX)
+        val peripheralManager = PeripheralManager.getInstance()
+        j2Gpio = peripheralManager.openGpio("GPIO2_IO01")
+        j2Gpio.setDirection(Gpio.DIRECTION_OUT_INITIALLY_LOW)
+        j2Gpio.setActiveType(Gpio.ACTIVE_HIGH)
+
+        scrollTimer = object : CountDownTimer(86400000, 500) {
+            override fun onTick(millisUntilFinished: Long) {
+                fourChars = fourChars.substring(1) + marqueeText[marqueePosition]
+                segmentDisplay.display(fourChars)
+                rainbowLeds.write(rainbow)
+                rainbow = rainbow.copyOfRange(6, 7) + rainbow.copyOfRange(0, 6)
+                marqueePosition = (marqueePosition + 1) % marqueeText.length
+            }
+
+            override fun onFinish() {
+            }
+        }
+
         for (i in 0 until rainbow.size) {
             rainbow[i] = Color.HSVToColor(255, floatArrayOf(i * 360f / rainbow.size, 1.0f, 1.0f))
         }
@@ -74,7 +79,6 @@ class MainActivity : Activity() {
             segmentDisplay.clear()
             segmentDisplay.setEnabled(true)
             rainbowLeds.brightness = 1
-            // if the Rainbow HAT already has a marquee/scrolling function, I don't know what it is
             scrollTimer.start()
         }
         redLed.value = !redLed.value
@@ -82,20 +86,15 @@ class MainActivity : Activity() {
     }
 
     private fun turnMotorOnOrOff() {
-        if (motorOn) {
-            greenLed.value = false
-            Log.d(TAG, "turning motor off")
-        } else {
-            Log.d(TAG, "turning motor on")
-        }
         greenLed.value = !greenLed.value
-        motorOn = !motorOn
+        j2Gpio.value = !j2Gpio.value
     }
 
     override fun onDestroy() {
         super.onDestroy()
         segmentDisplay.close()
         rainbowLeds.close()
+        j2Gpio.close()
     }
 
 }
