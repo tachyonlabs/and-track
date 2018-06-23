@@ -30,7 +30,7 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // pin GPIO2_IO01 on JP2 on the NXP i.MX7D board, used to control the motor
+        // pin GPIO2_IO01 on JP2 on the NXP Pico i.MX7D board, used to control the motor
         j2Gpio = PeripheralManager.getInstance().openGpio("GPIO2_IO01")
         j2Gpio.setDirection(Gpio.DIRECTION_OUT_INITIALLY_LOW)
         j2Gpio.setActiveType(Gpio.ACTIVE_HIGH)
